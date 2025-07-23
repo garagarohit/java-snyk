@@ -9,9 +9,6 @@ on:
 jobs:
   snyk:
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        shell: bash
 
     steps:
     - name: Checkout code
@@ -27,6 +24,9 @@ jobs:
       run: |
         export JAVA_HOME=$JAVA_HOME_17_X64
         ./mvnw clean install -DskipTests
+
+    - name: Install Snyk CLI
+      run: npm install -g snyk
 
     - name: Run Snyk to check for vulnerabilities
       run: |

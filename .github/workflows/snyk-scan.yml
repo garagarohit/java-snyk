@@ -44,7 +44,7 @@ jobs:
         export JAVA_HOME=$JAVA_HOME_17_X64
         snyk test --maven \
           --project-name=java-snyk-github \
-          --project-environment=github-actions \
+          --project-environment=backend \
           --json > snyk-report.json
 
     - name: Upload Snyk JSON report as artifact
@@ -58,6 +58,6 @@ jobs:
         export JAVA_HOME=$JAVA_HOME_17_X64
         snyk monitor --maven \
           --project-name=java-snyk-github \
-          --project-environment=github-actions
+          --project-environment=backend 
       env:
         SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}

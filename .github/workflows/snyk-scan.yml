@@ -1,4 +1,4 @@
-name: Snyk Scan
+name: Snyk Maven Scan with Reports
 
 on:
   push:
@@ -20,17 +20,43 @@ jobs:
         distribution: 'temurin'
         java-version: '17'
 
-    - name: Install project dependencies (Maven Wrapper)
-      run: |
-        export JAVA_HOME=$JAVA_HOME_17_X64
-        ./mvnw clean install -DskipTests
+    - name: Cache Maven packages
+      uses: actions/cache@v3
+      with:
+        path: |
+          ~/.m2/repository
+        key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+        restore-keys: |
+          ${{ runner.os }}-maven-
+
+    - name: Build with Maven
+      run: mvn clean install -DskipTests
 
     - name: Install Snyk CLI
       run: npm install -g snyk
 
-    - name: Run Snyk to check for vulnerabilities
+    - name: Authenticate Snyk
+      run: snyk auth ${{ secrets.SNYK_TOKEN }}
+
+    - name: Run Snyk test and save JSON report
       run: |
         export JAVA_HOME=$JAVA_HOME_17_X64
-        snyk test --maven
+        snyk test --maven \
+          --project-name=java-snyk-github \
+          --project-environment=github-actions \
+          --json > snyk-report.json
+
+    - name: Upload Snyk JSON report as artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: snyk-json-report
+        path: snyk-report.json
+
+    - name: Monitor project in Snyk UI
+      run: |
+        export JAVA_HOME=$JAVA_HOME_17_X64
+        snyk monitor --maven \
+          --project-name=java-snyk-github \
+          --project-environment=github-actions
       env:
         SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}

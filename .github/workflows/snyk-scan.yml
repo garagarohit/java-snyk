@@ -1,3 +1,11 @@
+name: Snyk Scan
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
 jobs:
   snyk:
     runs-on: ubuntu-latest
@@ -15,7 +23,7 @@ jobs:
         distribution: 'temurin'
         java-version: '17'
 
-    - name: Build with Maven Wrapper
+    - name: Install project dependencies (Maven Wrapper)
       run: |
         export JAVA_HOME=$JAVA_HOME_17_X64
         ./mvnw clean install -DskipTests

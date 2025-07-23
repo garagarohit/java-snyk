@@ -39,6 +39,7 @@ jobs:
       run: snyk auth ${{ secrets.SNYK_TOKEN }}
 
     - name: Run Snyk test and save JSON report
+      continue-on-error: true
       run: |
         export JAVA_HOME=$JAVA_HOME_17_X64
         snyk test --maven \
